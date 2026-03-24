@@ -35,7 +35,7 @@ typedef COMPILER__index COMPILER__statement_index;
 #define COMPILER__define__variable_name_index_from_name_list 0 // the first index is the variable name, all following names are structure accesses
 
 // master namespace
-#define COMPILER__define__master_namespace "dragon"
+#define COMPILER__define__master_namespace "df"
 
 // accountling statement variable type (used for distinguishing statement inputs and outputs)
 typedef enum COMPILER__asvt {

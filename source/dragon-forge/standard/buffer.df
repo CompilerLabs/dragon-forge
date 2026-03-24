@@ -1,20 +1,20 @@
 [ calculate buffer length ]
-dragon.buffer.calculate.length(buffer !dragon.buffer)(length !dragon.cell) = {
+df.buffer.calculate.length(buffer !df.buffer)(length !df.cell) = {
     [ calculate ]
-    dragon.integer.subtract(buffer:end, buffer:start)(length)
-    dragon.integer.add(length, dragon.constant.1)(length)
+    df.integer.subtract(buffer:end, buffer:start)(length)
+    df.integer.add(length, df.constant.1)(length)
 }
 
 [ calculate buffer start address ]
-dragon.buffer.calculate.start_address(length !dragon.cell, end !dragon.cell)(start !dragon.cell) = {
+df.buffer.calculate.start_address(length !df.cell, end !df.cell)(start !df.cell) = {
     [ calculate ]
-    dragon.integer.subtract(end, length)(start)
-    dragon.integer.add(start, dragon.constant.1)(start)
+    df.integer.subtract(end, length)(start)
+    df.integer.add(start, df.constant.1)(start)
 }
 
 [ calculate buffer end address ]
-dragon.buffer.calculate.end_address(start !dragon.cell, length !dragon.cell)(end !dragon.cell) = {
+df.buffer.calculate.end_address(start !df.cell, length !df.cell)(end !df.cell) = {
     [ calculate ]
-    dragon.integer.add(start, length)(end)
-    dragon.integer.subtract(end, dragon.constant.1)(end)
+    df.integer.add(start, length)(end)
+    df.integer.subtract(end, df.constant.1)(end)
 }

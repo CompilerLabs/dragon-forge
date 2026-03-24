@@ -1,150 +1,150 @@
 [ print new line ]
-dragon.print.new_line()() = {
-    dragon.set(dragon.hexadecimal.0A)(new_line)
-    dragon.print.character(new_line)()
+df.print.new_line()() = {
+    df.set(df.hexadecimal.0A)(new_line)
+    df.print.character(new_line)()
 }
 
 [ print new line(s) ]
-dragon.print.new_line(count !dragon.cell)() = {
+df.print.new_line(count !df.cell)() = {
     [ check remaining iterations ]
-    dragon.integer.within_range(dragon.constant.0, count, dragon.constant.0)(quit, continue)
-    dragon.jump.bottom(quit, @dragon.master_scope)()
+    df.integer.within_range(df.constant.0, count, df.constant.0)(quit, continue)
+    df.jump.bottom(quit, @df.master_scope)()
 
     [ print ]
-    dragon.print.new_line()()
+    df.print.new_line()()
 
     [ subtract ]
-    dragon.integer.subtract(count, dragon.constant.1)(count)
+    df.integer.subtract(count, df.constant.1)(count)
 
     [ to top of loop ]
-    dragon.jump.top(dragon.always, @dragon.master_scope)()
+    df.jump.top(df.always, @df.master_scope)()
 }
 
 [ print tabs ]
-dragon.print.tabs(tab_count !dragon.cell)() = {
+df.print.tabs(tab_count !df.cell)() = {
     [ set tab ]
-    dragon.set(dragon.hexadecimal.09)(tab)
+    df.set(df.hexadecimal.09)(tab)
 
     [ print tabs until finished ]
-    @loop dragon.always = {
+    @loop df.always = {
         [ check for more characters ]
-        dragon.integer.within_range(dragon.constant.0, tab_count, dragon.constant.0)(finished, unfinished)
-        dragon.jump.bottom(finished, @loop)()
+        df.integer.within_range(df.constant.0, tab_count, df.constant.0)(finished, unfinished)
+        df.jump.bottom(finished, @loop)()
 
         [ print tab ]
-        dragon.print.character(tab)()
+        df.print.character(tab)()
 
         [ next index ]
-        dragon.integer.subtract(tab_count, dragon.constant.1)(tab_count)
+        df.integer.subtract(tab_count, df.constant.1)(tab_count)
 
         [ jump to loop start ]
-        dragon.jump.top(dragon.always, @loop)()
+        df.jump.top(df.always, @loop)()
     }
 }
 
 [ print a buffer as a set of two addresses ]
-dragon.print.buffer(buffer !dragon.buffer)() = {
+df.print.buffer(buffer !df.buffer)() = {
     [ setup strings ]
-    dragon.set("[ ")(header)
-    dragon.set(", ")(separator)
-    dragon.set(" ]")(footer)
+    df.set("[ ")(header)
+    df.set(", ")(separator)
+    df.set(" ]")(footer)
 
     [ print buffer ]
-    dragon.print.buffer_as_string(header)()
-    dragon.print.integer.unsigned(buffer:start)()
-    dragon.print.buffer_as_string(separator)()
-    dragon.print.integer.unsigned(buffer:end)()
-    dragon.print.buffer_as_string(footer)()
+    df.print.buffer_as_string(header)()
+    df.print.integer.unsigned(buffer:start)()
+    df.print.buffer_as_string(separator)()
+    df.print.integer.unsigned(buffer:end)()
+    df.print.buffer_as_string(footer)()
 }
 
 [ print a current ]
-dragon.print.current(current !dragon.current)() = {
+df.print.current(current !df.current)() = {
     [ setup strings ]
-    dragon.set("[ ")(header)
-    dragon.set(", ")(separator)
-    dragon.set(" ]")(footer)
+    df.set("[ ")(header)
+    df.set(", ")(separator)
+    df.set(" ]")(footer)
 
     [ print buffer ]
-    dragon.print.buffer_as_string(header)()
-    dragon.print.integer.unsigned(current:buffer:start)()
-    dragon.print.buffer_as_string(separator)()
-    dragon.print.integer.unsigned(current:buffer:end)()
-    dragon.print.buffer_as_string(separator)()
-    dragon.print.integer.unsigned(current:progress)()
-    dragon.print.buffer_as_string(footer)()
+    df.print.buffer_as_string(header)()
+    df.print.integer.unsigned(current:buffer:start)()
+    df.print.buffer_as_string(separator)()
+    df.print.integer.unsigned(current:buffer:end)()
+    df.print.buffer_as_string(separator)()
+    df.print.integer.unsigned(current:progress)()
+    df.print.buffer_as_string(footer)()
 }
 
 [ print a buffer as a string ]
-dragon.print.buffer_as_string(buffer !dragon.buffer)() = {
+df.print.buffer_as_string(buffer !df.buffer)() = {
     [ setup current ]
-    dragon.pack(buffer, buffer:start)(current_character !dragon.current)
+    df.pack(buffer, buffer:start)(current_character !df.current)
 
     [ print characters ]
-    @print dragon.always = {
+    @print df.always = {
         [ check for end of string ]
-        dragon.current.within_range(current_character)(more_characters, out_of_characters)
-        dragon.jump.bottom(out_of_characters, @print)()
+        df.current.within_range(current_character)(more_characters, out_of_characters)
+        df.jump.bottom(out_of_characters, @print)()
 
         [ read character ]
-        dragon.address_to_cell(current_character:progress, dragon.ascii_character.byte_size)(character, current_character:progress)
+        df.address_to_cell(current_character:progress, df.ascii_character.byte_size)(character, current_character:progress)
 
         [ print character ]
-        dragon.print.character(character)()
+        df.print.character(character)()
 
         [ jump to loop start ]
-        dragon.jump.top(dragon.always, @print)()
+        df.jump.top(df.always, @print)()
     }
 }
 
 [ print an unsigned integer ]
-dragon.print.integer.unsigned(value !dragon.cell)() = {
+df.print.integer.unsigned(value !df.cell)() = {
     [ cast to string ]
-    dragon.cast.cell_to_decimal_string.higher_to_lower(value)(string)
+    df.cast.cell_to_decimal_string.higher_to_lower(value)(string)
 
     [ print string ]
-    dragon.print.buffer_as_string(string)()
+    df.print.buffer_as_string(string)()
 
     [ return string ]
-    dragon.buffer.return(string)()
+    df.buffer.return(string)()
 }
 
 [ print a binary number ]
-dragon.print.binary.lower_to_higher(value !dragon.cell)() = {
+df.print.binary.lower_to_higher(value !df.cell)() = {
     [ cast to string ]
-    dragon.cast.cell_to_binary_string.lower_to_higher(value)(string)
+    df.cast.cell_to_binary_string.lower_to_higher(value)(string)
 
     [ print string ]
-    dragon.print.buffer_as_string(string)()
+    df.print.buffer_as_string(string)()
 
     [ return string ]
-    dragon.buffer.return(string)()
+    df.buffer.return(string)()
 }
 
 [ print a binary number ]
-dragon.print.binary.higher_to_lower(value !dragon.cell)() = {
+df.print.binary.higher_to_lower(value !df.cell)() = {
     [ cast to string ]
-    dragon.cast.cell_to_binary_string.higher_to_lower(value)(string)
+    df.cast.cell_to_binary_string.higher_to_lower(value)(string)
 
     [ print string ]
-    dragon.print.buffer_as_string(string)()
+    df.print.buffer_as_string(string)()
 
     [ return string ]
-    dragon.buffer.return(string)()
+    df.buffer.return(string)()
 }
 
 [ print a text location ]
-dragon.print.text.location(location !dragon.text.location)() = {
+df.print.text.location(location !df.text.location)() = {
     [ setup strings ]
-    dragon.set("[ ")(header)
-    dragon.set(", ")(separator)
-    dragon.set(" ]")(footer)
+    df.set("[ ")(header)
+    df.set(", ")(separator)
+    df.set(" ]")(footer)
 
     [ print buffer ]
-    dragon.print.buffer_as_string(header)()
-    dragon.print.integer.unsigned(location:file_index)()
-    dragon.print.buffer_as_string(separator)()
-    dragon.print.integer.unsigned(location:line_number)()
-    dragon.print.buffer_as_string(separator)()
-    dragon.print.integer.unsigned(location:character_index)()
-    dragon.print.buffer_as_string(footer)()
+    df.print.buffer_as_string(header)()
+    df.print.integer.unsigned(location:file_index)()
+    df.print.buffer_as_string(separator)()
+    df.print.integer.unsigned(location:line_number)()
+    df.print.buffer_as_string(separator)()
+    df.print.integer.unsigned(location:character_index)()
+    df.print.buffer_as_string(footer)()
 }

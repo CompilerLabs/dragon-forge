@@ -1,118 +1,118 @@
 [ count how many digits in any number system ]
-dragon.cast.calculate.digit_count(base !dragon.cell, value !dragon.cell)(count !dragon.cell) = {
+df.cast.calculate.digit_count(base !df.cell, value !df.cell)(count !df.cell) = {
     [ check for zero value ]
-    dragon.integer.within_range(dragon.constant.0, value, dragon.constant.0)(is_zero_value, is_not_zero_value)
+    df.integer.within_range(df.constant.0, value, df.constant.0)(is_zero_value, is_not_zero_value)
     @is_zero_value is_zero_value = {
         [ if is zero value, then character count must be 1 to account for '0' string ]
-        dragon.set(dragon.integer.1)(count)
+        df.set(df.integer.1)(count)
 
         [ exit function ]
-        dragon.jump(dragon.always, @finished)()
+        df.jump(df.always, @finished)()
     }
 
     [ check for invalid denominator ]
-    dragon.integer.within_range(dragon.constant.0, base, dragon.constant.1)(is_zero_base, is_not_zero_base)
+    df.integer.within_range(df.constant.0, base, df.constant.1)(is_zero_base, is_not_zero_base)
     @is_zero_base is_zero_base = {
         [ if is zero base, then character count must be 0 to account for an invalid denominator ]
-        dragon.set(dragon.integer.0)(count)
+        df.set(df.integer.0)(count)
 
         [ exit function ]
-        dragon.jump(dragon.always, @finished)()
+        df.jump(df.always, @finished)()
     }
 
     [ calculate count ]
     [ null init count ]
-    dragon.set(dragon.integer.0)(count)
+    df.set(df.integer.0)(count)
 
     [ loop start ]
     @loop_start
 
     [ check if value is zero ]
-    dragon.integer.within_range(dragon.constant.0, value, dragon.constant.0)(is_zero_value, is_not_zero_value)
-    dragon.jump(is_zero_value, @finished)()
+    df.integer.within_range(df.constant.0, value, df.constant.0)(is_zero_value, is_not_zero_value)
+    df.jump(is_zero_value, @finished)()
 
     [ calculate new amount ]
-    dragon.integer.divide(value, base)(value)
+    df.integer.divide(value, base)(value)
 
     [ increment counter ]
-    dragon.integer.add(count, dragon.constant.1)(count)
+    df.integer.add(count, df.constant.1)(count)
 
     [ jump to loop start ]
-    dragon.jump(dragon.always, @loop_start)()
+    df.jump(df.always, @loop_start)()
 
     [ setup exit ]
     @finished
 }
 
 [ convert a cell to a string of any type ]
-dragon.cast.cell_to_text(value !dragon.cell, base !dragon.cell, digits !dragon.buffer, direction !dragon.cell[ false is lower to higher, true is higher to lower ])(string !dragon.buffer) = {
+df.cast.cell_to_text(value !df.cell, base !df.cell, digits !df.buffer, direction !df.cell[ false is lower to higher, true is higher to lower ])(string !df.buffer) = {
     [ calculate digit count ]
-    dragon.cast.calculate.digit_count(base, value)(digit_count)
+    df.cast.calculate.digit_count(base, value)(digit_count)
 
     [ allocate string ]
-    dragon.buffer.request(digit_count)(string)
+    df.buffer.request(digit_count)(string)
 
     [ invert direction ]
-    dragon.bits.xor(direction, dragon.constant.1)(alternate_direction)
+    df.bits.xor(direction, df.constant.1)(alternate_direction)
 
     [ if is lower to higher ]
     @lower_to_higher alternate_direction = {
         [ setup current ]
-        dragon.pack(string, string:start)(current !dragon.current)
+        df.pack(string, string:start)(current !df.current)
 
         [ setup loop start ]
         @lower_to_higher.loop_start
 
         [ check for valid current ]
-        dragon.current.within_range(current)(continue, exit)
-        dragon.jump(exit, @exit)()
+        df.current.within_range(current)(continue, exit)
+        df.jump(exit, @exit)()
 
         [ get digit ]
-        dragon.integer.modulous(value, base)(remainder)
-        dragon.integer.add(digits:start, remainder)(character_address)
-        dragon.address_to_cell(character_address, dragon.constant.1)(character, advancement)
+        df.integer.modulous(value, base)(remainder)
+        df.integer.add(digits:start, remainder)(character_address)
+        df.address_to_cell(character_address, df.constant.1)(character, advancement)
 
         [ setup next digit ]
-        dragon.integer.divide(value, base)(value)
+        df.integer.divide(value, base)(value)
 
         [ write digit ]
-        dragon.cell_to_address(character, dragon.constant.1, current:progress)(advancement)
+        df.cell_to_address(character, df.constant.1, current:progress)(advancement)
 
         [ advance current ]
-        dragon.integer.add(current:progress, dragon.constant.1)(current:progress)
+        df.integer.add(current:progress, df.constant.1)(current:progress)
 
         [ jump to beginning for next character ]
-        dragon.jump(dragon.always, @lower_to_higher.loop_start)()
+        df.jump(df.always, @lower_to_higher.loop_start)()
     }
 
     [ if is higher to lower ]
     @higher_to_lower direction = {
         [ setup current ]
-        dragon.pack(string, string:end)(current !dragon.current)
+        df.pack(string, string:end)(current !df.current)
 
         [ setup loop start ]
         @higher_to_lower.loop_start
 
         [ check for valid current ]
-        dragon.current.within_range(current)(continue, exit)
-        dragon.jump(exit, @exit)()
+        df.current.within_range(current)(continue, exit)
+        df.jump(exit, @exit)()
 
         [ get digit ]
-        dragon.integer.modulous(value, base)(remainder)
-        dragon.integer.add(digits:start, remainder)(character_address)
-        dragon.address_to_cell(character_address, dragon.constant.1)(character, advancement)
+        df.integer.modulous(value, base)(remainder)
+        df.integer.add(digits:start, remainder)(character_address)
+        df.address_to_cell(character_address, df.constant.1)(character, advancement)
 
         [ setup next digit ]
-        dragon.integer.divide(value, base)(value)
+        df.integer.divide(value, base)(value)
 
         [ write digit ]
-        dragon.cell_to_address(character, dragon.constant.1, current:progress)(advancement)
+        df.cell_to_address(character, df.constant.1, current:progress)(advancement)
 
         [ advance current ]
-        dragon.integer.subtract(current:progress, dragon.constant.1)(current:progress)
+        df.integer.subtract(current:progress, df.constant.1)(current:progress)
 
         [ jump to beginning for next character ]
-        dragon.jump(dragon.always, @higher_to_lower.loop_start)()
+        df.jump(df.always, @higher_to_lower.loop_start)()
     }
 
     [ setup loop exit ]
@@ -120,67 +120,67 @@ dragon.cast.cell_to_text(value !dragon.cell, base !dragon.cell, digits !dragon.b
 }
 
 [ cast a cell to binary string ]
-dragon.cast.cell_to_binary_string.lower_to_higher(value !dragon.cell)(string !dragon.buffer) = {
+df.cast.cell_to_binary_string.lower_to_higher(value !df.cell)(string !df.buffer) = {
     [ setup data ]
-    dragon.set("01")(digits)
-    dragon.set(dragon.integer.2)(base)
-    dragon.set(dragon.boolean.false)(direction)
+    df.set("01")(digits)
+    df.set(df.integer.2)(base)
+    df.set(df.boolean.false)(direction)
 
     [ cast ]
-    dragon.cast.cell_to_text(value, base, digits, direction)(string)
+    df.cast.cell_to_text(value, base, digits, direction)(string)
 }
 
 [ cast a cell to binary string ]
-dragon.cast.cell_to_binary_string.higher_to_lower(value !dragon.cell)(string !dragon.buffer) = {
+df.cast.cell_to_binary_string.higher_to_lower(value !df.cell)(string !df.buffer) = {
     [ setup data ]
-    dragon.set("01")(digits)
-    dragon.set(dragon.integer.2)(base)
-    dragon.set(dragon.boolean.true)(direction)
+    df.set("01")(digits)
+    df.set(df.integer.2)(base)
+    df.set(df.boolean.true)(direction)
 
     [ cast ]
-    dragon.cast.cell_to_text(value, base, digits, direction)(string)
+    df.cast.cell_to_text(value, base, digits, direction)(string)
 }
 
 [ cast a cell to decimal string ]
-dragon.cast.cell_to_decimal_string.lower_to_higher(value !dragon.cell)(string !dragon.buffer) = {
+df.cast.cell_to_decimal_string.lower_to_higher(value !df.cell)(string !df.buffer) = {
     [ setup data ]
-    dragon.set("0123456789")(digits)
-    dragon.set(dragon.integer.10)(base)
-    dragon.set(dragon.boolean.false)(direction)
+    df.set("0123456789")(digits)
+    df.set(df.integer.10)(base)
+    df.set(df.boolean.false)(direction)
 
     [ cast ]
-    dragon.cast.cell_to_text(value, base, digits, direction)(string)
+    df.cast.cell_to_text(value, base, digits, direction)(string)
 }
 
 [ cast a cell to decimal string ]
-dragon.cast.cell_to_decimal_string.higher_to_lower(value !dragon.cell)(string !dragon.buffer) = {
+df.cast.cell_to_decimal_string.higher_to_lower(value !df.cell)(string !df.buffer) = {
     [ setup data ]
-    dragon.set("0123456789")(digits)
-    dragon.set(dragon.integer.10)(base)
-    dragon.set(dragon.boolean.true)(direction)
+    df.set("0123456789")(digits)
+    df.set(df.integer.10)(base)
+    df.set(df.boolean.true)(direction)
 
     [ cast ]
-    dragon.cast.cell_to_text(value, base, digits, direction)(string)
+    df.cast.cell_to_text(value, base, digits, direction)(string)
 }
 
 [ cast a cell to hex string ]
-dragon.cast.cell_to_hex_string.lower_to_higher(value !dragon.cell)(string !dragon.buffer) = {
+df.cast.cell_to_hex_string.lower_to_higher(value !df.cell)(string !df.buffer) = {
     [ setup data ]
-    dragon.set("0123456789ABCDEF")(hexits)
-    dragon.set(dragon.integer.16)(base)
-    dragon.set(dragon.boolean.false)(direction)
+    df.set("0123456789ABCDEF")(hexits)
+    df.set(df.integer.16)(base)
+    df.set(df.boolean.false)(direction)
 
     [ cast ]
-    dragon.cast.cell_to_text(value, base, hexits, direction)(string)
+    df.cast.cell_to_text(value, base, hexits, direction)(string)
 }
 
 [ cast a cell to hex string ]
-dragon.cast.cell_to_hex_string.higher_to_lower(value !dragon.cell)(string !dragon.buffer) = {
+df.cast.cell_to_hex_string.higher_to_lower(value !df.cell)(string !df.buffer) = {
     [ setup data ]
-    dragon.set("0123456789ABCDEF")(hexits)
-    dragon.set(dragon.integer.16)(base)
-    dragon.set(dragon.boolean.true)(direction)
+    df.set("0123456789ABCDEF")(hexits)
+    df.set(df.integer.16)(base)
+    df.set(df.boolean.true)(direction)
 
     [ cast ]
-    dragon.cast.cell_to_text(value, base, hexits, direction)(string)
+    df.cast.cell_to_text(value, base, hexits, direction)(string)
 }

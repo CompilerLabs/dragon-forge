@@ -1,61 +1,61 @@
 [ compile, install and run program ]
-dragon.just_run(program.sources !dragon.list, program.input !dragon.buffer)(compilation.error !dragon.error, program.result !dragon.buffer, program.error !dragon.buffer) = {
+df.just_run(program.sources !df.list, program.input !df.buffer)(compilation.error !df.error, program.result !df.buffer, program.error !df.buffer) = {
     [ get buffer of buffers ]
-    dragon.list.calculate.content_buffer(program.sources)(sources.buffer)
+    df.list.calculate.content_buffer(program.sources)(sources.buffer)
 
     [ compile ]
-    dragon.compiler.configure.default_compile()(settings)
-    dragon.compiler.compile(sources.buffer, settings)(byte_code, debug_information, built_in_compilation_error)
+    df.compiler.configure.default_compile()(settings)
+    df.compiler.compile(sources.buffer, settings)(byte_code, debug_information, built_in_compilation_error)
 
     [ check for compilation error ]
     @print_compilation_error built_in_compilation_error:occured = {
         [ generate error ]
-        dragon.error.generate(built_in_compilation_error:message, built_in_compilation_error:location)(compilation.error)
+        df.error.generate(built_in_compilation_error:message, built_in_compilation_error:location)(compilation.error)
 
         [ skip program instalation and execution ]
-        dragon.jump.bottom(dragon.always, @dragon.master_scope)()
+        df.jump.bottom(df.always, @df.master_scope)()
     }
 
     [ open new context & install ]
-    dragon.context.open()(context)
-    dragon.context.install_program(context, byte_code)()
+    df.context.open()(context)
+    df.context.install_program(context, byte_code)()
 
     [ pass input ]
-    dragon.context.set.context_input(context, program.input)()
+    df.context.set.context_input(context, program.input)()
 
     [ run context ]
-    dragon.set(dragon.integer.n1)(instruction_count)
-    dragon.context.run(context, instruction_count)()
+    df.set(df.integer.n1)(instruction_count)
+    df.context.run(context, instruction_count)()
 
     [ get outputs and results ]
-    dragon.context.get.context_result(context)(program.result)
-    dragon.context.get.context_error(context)(program.error)
+    df.context.get.context_result(context)(program.result)
+    df.context.get.context_error(context)(program.error)
 
     [ clean up context ]
-    dragon.buffer.return(context)()
+    df.buffer.return(context)()
 
     [ clean up program ]
-    dragon.buffer.return(byte_code)()
+    df.buffer.return(byte_code)()
 }
 
 [ test one file ]
-dragon.just_run.one_file(file_path !dragon.buffer, program.input !dragon.buffer)(compilation.error !dragon.error, program.result !dragon.buffer, program.error !dragon.buffer) = {
+df.just_run.one_file(file_path !df.buffer, program.input !df.buffer)(compilation.error !df.error, program.result !df.buffer, program.error !df.buffer) = {
     [ load file ]
-    dragon.file_to_buffer(file_path)(user_code)
+    df.file_to_buffer(file_path)(user_code)
 
     [ open list ]
-    dragon.structure.byte_size(user_code)(files.byte_size)
-    dragon.list.open(files.byte_size)(files)
+    df.structure.byte_size(user_code)(files.byte_size)
+    df.list.open(files.byte_size)(files)
 
     [ append buffer ]
-    dragon.list.append.buffer(files, user_code)(files)
+    df.list.append.buffer(files, user_code)(files)
 
     [ run test ]
-    dragon.just_run(files, program.input)(compilation.error, program.result, program.error)
+    df.just_run(files, program.input)(compilation.error, program.result, program.error)
 
     [ clean up file ]
-    dragon.buffer.return(user_code)()
+    df.buffer.return(user_code)()
 
     [ clean up files ]
-    dragon.list.close(files)()
+    df.list.close(files)()
 }

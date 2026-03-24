@@ -9,463 +9,463 @@
 ]
 
 [ create a workspace ]
-!dragon.anvil.workspace
+!df.anvil.workspace
 (
-    do_write !dragon.cell,
-    write_to !dragon.cell,
-    length !dragon.cell,
-    program !dragon.buffer
+    do_write !df.cell,
+    write_to !df.cell,
+    length !df.cell,
+    program !df.buffer
 )
 
 [ open a workspace ]
-dragon.anvil.workspace.open()(workspace !dragon.anvil.workspace) = {
-    dragon.pack.null()(workspace !dragon.anvil.workspace)
+df.anvil.workspace.open()(workspace !df.anvil.workspace) = {
+    df.pack.null()(workspace !df.anvil.workspace)
 }
 
 [ advance workspace ]
-dragon.anvil.workspace.setup_pass(workspace !dragon.anvil.workspace, do_write !dragon.cell)(workspace !dragon.anvil.workspace) = {
+df.anvil.workspace.setup_pass(workspace !df.anvil.workspace, do_write !df.cell)(workspace !df.anvil.workspace) = {
     [ setup do_write ]
-    dragon.copy(do_write)(workspace:do_write)
+    df.copy(do_write)(workspace:do_write)
 
     [ determine pass type ]
-    dragon.integer.within_range(dragon.false, workspace:do_write, dragon.false)(measure_pass, not_measure_pass)
-    dragon.integer.within_range(dragon.true, workspace:do_write, dragon.true)(write_pass, not_write_pass)
+    df.integer.within_range(df.false, workspace:do_write, df.false)(measure_pass, not_measure_pass)
+    df.integer.within_range(df.true, workspace:do_write, df.true)(write_pass, not_write_pass)
 
     [ if is starting a measure pass ]
     @measure_pass measure_pass = {
         [ setup length ]
-        dragon.copy(dragon.constant.0)(workspace:length)
+        df.copy(df.constant.0)(workspace:length)
     }
 
     [ if is starting a write pass ]
     @write_pass write_pass = {
         [ allocate buffer based on length ]
-        dragon.buffer.request(workspace:length)(workspace:program)
+        df.buffer.request(workspace:length)(workspace:program)
 
         [ setup write to ]
-        dragon.copy(workspace:program:start)(workspace:write_to)
+        df.copy(workspace:program:start)(workspace:write_to)
 
         [ reset length ]
-        dragon.copy(dragon.constant.0)(workspace:length)
+        df.copy(df.constant.0)(workspace:length)
     }
 }
 
 [ write cell data to workspace ]
-dragon.anvil.workspace.write.cell(workspace !dragon.anvil.workspace, data !dragon.cell, count !dragon.cell)(workspace !dragon.anvil.workspace) = {
+df.anvil.workspace.write.cell(workspace !df.anvil.workspace, data !df.cell, count !df.cell)(workspace !df.anvil.workspace) = {
     [ if is write pass, do write and advancement ]
     @do_write workspace:do_write = {
         [ write data & advance ]
-        dragon.cell_to_address(data, count, workspace:write_to)(workspace:write_to)
+        df.cell_to_address(data, count, workspace:write_to)(workspace:write_to)
     }
 
     [ advance length ]
-    dragon.integer.add(workspace:length, count)(workspace:length)
+    df.integer.add(workspace:length, count)(workspace:length)
 }
 
 [ write buffer to workspace ]
-dragon.anvil.workspace.write.buffer(workspace !dragon.anvil.workspace, data !dragon.buffer)(workspace !dragon.anvil.workspace) = {
+df.anvil.workspace.write.buffer(workspace !df.anvil.workspace, data !df.buffer)(workspace !df.anvil.workspace) = {
     [ calculate buffer length ]
-    dragon.buffer.calculate.length(data)(data.length)
+    df.buffer.calculate.length(data)(data.length)
 
     [ if is write pass, do write and advancement ]
     @do_write workspace:do_write = {
         [ calculate destination buffer ]
-        dragon.buffer.calculate.end_address(workspace:write_to, data.length)(destination.end)
-        dragon.pack(workspace:write_to, destination.end)(destination !dragon.buffer)
+        df.buffer.calculate.end_address(workspace:write_to, data.length)(destination.end)
+        df.pack(workspace:write_to, destination.end)(destination !df.buffer)
 
         [ write data ]
-        dragon.buffer.copy.low_to_high(data, destination)()
+        df.buffer.copy.low_to_high(data, destination)()
 
         [ advance current ]
-        dragon.integer.add(workspace:write_to, data.length)(workspace:write_to)
+        df.integer.add(workspace:write_to, data.length)(workspace:write_to)
     }
 
     [ advance length ]
-    dragon.integer.add(workspace:length, data.length)(workspace:length)
+    df.integer.add(workspace:length, data.length)(workspace:length)
 }
 
 [
     Anvil Defines
 ]
 [ define byte sizes ]
-dragon.anvil.define.byte_size.instruction_ID()(byte_size !dragon.cell) = { dragon.set(dragon.integer.1)(byte_size) }
-dragon.anvil.define.byte_size.flag_ID()(byte_size !dragon.cell) = { dragon.set(dragon.integer.1)(byte_size) }
-dragon.anvil.define.byte_size.operation_ID()(byte_size !dragon.cell) = { dragon.set(dragon.integer.1)(byte_size) }
-dragon.anvil.define.byte_size.cell_ID()(byte_size !dragon.cell) = { dragon.set(dragon.integer.2)(byte_size) }
-dragon.anvil.define.byte_size.cell()(byte_size !dragon.cell) = { dragon.copy(dragon.cell.byte_size)(byte_size) }
+df.anvil.define.byte_size.instruction_ID()(byte_size !df.cell) = { df.set(df.integer.1)(byte_size) }
+df.anvil.define.byte_size.flag_ID()(byte_size !df.cell) = { df.set(df.integer.1)(byte_size) }
+df.anvil.define.byte_size.operation_ID()(byte_size !df.cell) = { df.set(df.integer.1)(byte_size) }
+df.anvil.define.byte_size.cell_ID()(byte_size !df.cell) = { df.set(df.integer.2)(byte_size) }
+df.anvil.define.byte_size.cell()(byte_size !df.cell) = { df.copy(df.cell.byte_size)(byte_size) }
 
 [ define instruction IDs ]
-dragon.anvil.define.instruction_ID.stop()(ID !dragon.cell) = { dragon.set(dragon.integer.0)(ID) }
-dragon.anvil.define.instruction_ID.write_cell()(ID !dragon.cell) = { dragon.set(dragon.integer.1)(ID) }
-dragon.anvil.define.instruction_ID.operate()(ID !dragon.cell) = { dragon.set(dragon.integer.2)(ID) }
-dragon.anvil.define.instruction_ID.request_memory()(ID !dragon.cell) = { dragon.set(dragon.integer.3)(ID) }
-dragon.anvil.define.instruction_ID.return_memory()(ID !dragon.cell) = { dragon.set(dragon.integer.4)(ID) }
-dragon.anvil.define.instruction_ID.address_to_cell()(ID !dragon.cell) = { dragon.set(dragon.integer.5)(ID) }
-dragon.anvil.define.instruction_ID.cell_to_address()(ID !dragon.cell) = { dragon.set(dragon.integer.6)(ID) }
-dragon.anvil.define.instruction_ID.file_to_buffer()(ID !dragon.cell) = { dragon.set(dragon.integer.7)(ID) }
-dragon.anvil.define.instruction_ID.buffer_to_file()(ID !dragon.cell) = { dragon.set(dragon.integer.8)(ID) }
-dragon.anvil.define.instruction_ID.delete_file()(ID !dragon.cell) = { dragon.set(dragon.integer.9)(ID) }
-dragon.anvil.define.instruction_ID.buffer_to_buffer.low_to_high()(ID !dragon.cell) = { dragon.set(dragon.integer.10)(ID) }
-dragon.anvil.define.instruction_ID.buffer_to_buffer.high_to_low()(ID !dragon.cell) = { dragon.set(dragon.integer.11)(ID) }
-dragon.anvil.define.instruction_ID.compile()(ID !dragon.cell) = { dragon.set(dragon.integer.12)(ID) }
-dragon.anvil.define.instruction_ID.run()(ID !dragon.cell) = { dragon.set(dragon.integer.13)(ID) }
-dragon.anvil.define.instruction_ID.get_time()(ID !dragon.cell) = { dragon.set(dragon.integer.14)(ID) }
-dragon.anvil.define.instruction_ID.debug.putchar()(ID !dragon.cell) = { dragon.set(dragon.integer.15)(ID) }
-dragon.anvil.define.instruction_ID.debug.fgets()(ID !dragon.cell) = { dragon.set(dragon.integer.16)(ID) }
-dragon.anvil.define.instruction_ID.debug.mark_data_section()(ID !dragon.cell) = { dragon.set(dragon.integer.17)(ID) }
-dragon.anvil.define.instruction_ID.debug.mark_code_section()(ID !dragon.cell) = { dragon.set(dragon.integer.18)(ID) }
-dragon.anvil.define.instruction_ID.debug.get_current_context()(ID !dragon.cell) = { dragon.set(dragon.integer.19)(ID) }
-dragon.anvil.define.instruction_ID.debug.search_for_allocation()(ID !dragon.cell) = { dragon.set(dragon.integer.20)(ID) }
+df.anvil.define.instruction_ID.stop()(ID !df.cell) = { df.set(df.integer.0)(ID) }
+df.anvil.define.instruction_ID.write_cell()(ID !df.cell) = { df.set(df.integer.1)(ID) }
+df.anvil.define.instruction_ID.operate()(ID !df.cell) = { df.set(df.integer.2)(ID) }
+df.anvil.define.instruction_ID.request_memory()(ID !df.cell) = { df.set(df.integer.3)(ID) }
+df.anvil.define.instruction_ID.return_memory()(ID !df.cell) = { df.set(df.integer.4)(ID) }
+df.anvil.define.instruction_ID.address_to_cell()(ID !df.cell) = { df.set(df.integer.5)(ID) }
+df.anvil.define.instruction_ID.cell_to_address()(ID !df.cell) = { df.set(df.integer.6)(ID) }
+df.anvil.define.instruction_ID.file_to_buffer()(ID !df.cell) = { df.set(df.integer.7)(ID) }
+df.anvil.define.instruction_ID.buffer_to_file()(ID !df.cell) = { df.set(df.integer.8)(ID) }
+df.anvil.define.instruction_ID.delete_file()(ID !df.cell) = { df.set(df.integer.9)(ID) }
+df.anvil.define.instruction_ID.buffer_to_buffer.low_to_high()(ID !df.cell) = { df.set(df.integer.10)(ID) }
+df.anvil.define.instruction_ID.buffer_to_buffer.high_to_low()(ID !df.cell) = { df.set(df.integer.11)(ID) }
+df.anvil.define.instruction_ID.compile()(ID !df.cell) = { df.set(df.integer.12)(ID) }
+df.anvil.define.instruction_ID.run()(ID !df.cell) = { df.set(df.integer.13)(ID) }
+df.anvil.define.instruction_ID.get_time()(ID !df.cell) = { df.set(df.integer.14)(ID) }
+df.anvil.define.instruction_ID.debug.putchar()(ID !df.cell) = { df.set(df.integer.15)(ID) }
+df.anvil.define.instruction_ID.debug.fgets()(ID !df.cell) = { df.set(df.integer.16)(ID) }
+df.anvil.define.instruction_ID.debug.mark_data_section()(ID !df.cell) = { df.set(df.integer.17)(ID) }
+df.anvil.define.instruction_ID.debug.mark_code_section()(ID !df.cell) = { df.set(df.integer.18)(ID) }
+df.anvil.define.instruction_ID.debug.get_current_context()(ID !df.cell) = { df.set(df.integer.19)(ID) }
+df.anvil.define.instruction_ID.debug.search_for_allocation()(ID !df.cell) = { df.set(df.integer.20)(ID) }
 
 [ define operation IDs ]
-dragon.anvil.define.operation_ID.cell_to_cell()(ID !dragon.cell) = { dragon.set(dragon.integer.0)(ID) }
-dragon.anvil.define.operation_ID.bits_or()(ID !dragon.cell) = { dragon.set(dragon.integer.1)(ID) }
-dragon.anvil.define.operation_ID.bits_invert()(ID !dragon.cell) = { dragon.set(dragon.integer.2)(ID) }
-dragon.anvil.define.operation_ID.bits_and()(ID !dragon.cell) = { dragon.set(dragon.integer.3)(ID) }
-dragon.anvil.define.operation_ID.bits_xor()(ID !dragon.cell) = { dragon.set(dragon.integer.4)(ID) }
-dragon.anvil.define.operation_ID.bits_shift_higher()(ID !dragon.cell) = { dragon.set(dragon.integer.5)(ID) }
-dragon.anvil.define.operation_ID.bits_shift_lower()(ID !dragon.cell) = { dragon.set(dragon.integer.6)(ID) }
-dragon.anvil.define.operation_ID.bits_overwrite()(ID !dragon.cell) = { dragon.set(dragon.integer.7)(ID) }
-dragon.anvil.define.operation_ID.integer_add()(ID !dragon.cell) = { dragon.set(dragon.integer.8)(ID) }
-dragon.anvil.define.operation_ID.integer_subtract()(ID !dragon.cell) = { dragon.set(dragon.integer.9)(ID) }
-dragon.anvil.define.operation_ID.integer_multiply()(ID !dragon.cell) = { dragon.set(dragon.integer.10)(ID) }
-dragon.anvil.define.operation_ID.integer_division()(ID !dragon.cell) = { dragon.set(dragon.integer.11)(ID) }
-dragon.anvil.define.operation_ID.integer_modulous()(ID !dragon.cell) = { dragon.set(dragon.integer.12)(ID) }
-dragon.anvil.define.operation_ID.integer_within_range()(ID !dragon.cell) = { dragon.set(dragon.integer.13)(ID) }
-dragon.anvil.define.operation_ID.flag_or()(ID !dragon.cell) = { dragon.set(dragon.integer.14)(ID) }
-dragon.anvil.define.operation_ID.flag_invert()(ID !dragon.cell) = { dragon.set(dragon.integer.15)(ID) }
-dragon.anvil.define.operation_ID.flag_and()(ID !dragon.cell) = { dragon.set(dragon.integer.16)(ID) }
-dragon.anvil.define.operation_ID.flag_xor()(ID !dragon.cell) = { dragon.set(dragon.integer.17)(ID) }
-dragon.anvil.define.operation_ID.flag_get()(ID !dragon.cell) = { dragon.set(dragon.integer.18)(ID) }
-dragon.anvil.define.operation_ID.flag_set()(ID !dragon.cell) = { dragon.set(dragon.integer.19)(ID) }
+df.anvil.define.operation_ID.cell_to_cell()(ID !df.cell) = { df.set(df.integer.0)(ID) }
+df.anvil.define.operation_ID.bits_or()(ID !df.cell) = { df.set(df.integer.1)(ID) }
+df.anvil.define.operation_ID.bits_invert()(ID !df.cell) = { df.set(df.integer.2)(ID) }
+df.anvil.define.operation_ID.bits_and()(ID !df.cell) = { df.set(df.integer.3)(ID) }
+df.anvil.define.operation_ID.bits_xor()(ID !df.cell) = { df.set(df.integer.4)(ID) }
+df.anvil.define.operation_ID.bits_shift_higher()(ID !df.cell) = { df.set(df.integer.5)(ID) }
+df.anvil.define.operation_ID.bits_shift_lower()(ID !df.cell) = { df.set(df.integer.6)(ID) }
+df.anvil.define.operation_ID.bits_overwrite()(ID !df.cell) = { df.set(df.integer.7)(ID) }
+df.anvil.define.operation_ID.integer_add()(ID !df.cell) = { df.set(df.integer.8)(ID) }
+df.anvil.define.operation_ID.integer_subtract()(ID !df.cell) = { df.set(df.integer.9)(ID) }
+df.anvil.define.operation_ID.integer_multiply()(ID !df.cell) = { df.set(df.integer.10)(ID) }
+df.anvil.define.operation_ID.integer_division()(ID !df.cell) = { df.set(df.integer.11)(ID) }
+df.anvil.define.operation_ID.integer_modulous()(ID !df.cell) = { df.set(df.integer.12)(ID) }
+df.anvil.define.operation_ID.integer_within_range()(ID !df.cell) = { df.set(df.integer.13)(ID) }
+df.anvil.define.operation_ID.flag_or()(ID !df.cell) = { df.set(df.integer.14)(ID) }
+df.anvil.define.operation_ID.flag_invert()(ID !df.cell) = { df.set(df.integer.15)(ID) }
+df.anvil.define.operation_ID.flag_and()(ID !df.cell) = { df.set(df.integer.16)(ID) }
+df.anvil.define.operation_ID.flag_xor()(ID !df.cell) = { df.set(df.integer.17)(ID) }
+df.anvil.define.operation_ID.flag_get()(ID !df.cell) = { df.set(df.integer.18)(ID) }
+df.anvil.define.operation_ID.flag_set()(ID !df.cell) = { df.set(df.integer.19)(ID) }
 
 [
     Scraplets
 ]
 [ write instruction ID scraplet ]
-dragon.anvil.write.scraplet.instruction_ID(workspace !dragon.anvil.workspace, instruction_ID !dragon.cell #dragon.anvil.instruction_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.scraplet.instruction_ID(workspace !df.anvil.workspace, instruction_ID !df.cell #df.anvil.instruction_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.byte_size.instruction_ID()(byte_size)
+    df.anvil.define.byte_size.instruction_ID()(byte_size)
     
     [ write instruction ID ]
-    dragon.anvil.workspace.write.cell(workspace, instruction_ID, byte_size)(workspace)
+    df.anvil.workspace.write.cell(workspace, instruction_ID, byte_size)(workspace)
 }
 
 [ write flag ID scraplet ]
-dragon.anvil.write.scraplet.flag_ID(workspace !dragon.anvil.workspace, flag_ID !dragon.cell #dragon.anvil.flag_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.scraplet.flag_ID(workspace !df.anvil.workspace, flag_ID !df.cell #df.anvil.flag_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.byte_size.flag_ID()(byte_size)
+    df.anvil.define.byte_size.flag_ID()(byte_size)
 
     [ write instruction ID ]
-    dragon.anvil.workspace.write.cell(workspace, flag_ID, byte_size)(workspace)
+    df.anvil.workspace.write.cell(workspace, flag_ID, byte_size)(workspace)
 }
 
 [ write operation ID scraplet ]
-dragon.anvil.write.scraplet.operation_ID(workspace !dragon.anvil.workspace, operation_ID !dragon.cell #dragon.anvil.operation_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.scraplet.operation_ID(workspace !df.anvil.workspace, operation_ID !df.cell #df.anvil.operation_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.byte_size.operation_ID()(byte_size)
+    df.anvil.define.byte_size.operation_ID()(byte_size)
 
     [ write instruction ID ]
-    dragon.anvil.workspace.write.cell(workspace, operation_ID, byte_size)(workspace)
+    df.anvil.workspace.write.cell(workspace, operation_ID, byte_size)(workspace)
 }
 
 [ write cell ID scraplet ]
-dragon.anvil.write.scraplet.cell_ID(workspace !dragon.anvil.workspace, cell_ID !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.scraplet.cell_ID(workspace !df.anvil.workspace, cell_ID !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.byte_size.cell_ID()(byte_size)
+    df.anvil.define.byte_size.cell_ID()(byte_size)
 
     [ write instruction ID ]
-    dragon.anvil.workspace.write.cell(workspace, cell_ID, byte_size)(workspace)
+    df.anvil.workspace.write.cell(workspace, cell_ID, byte_size)(workspace)
 }
 
 [ write cell scraplet ]
-dragon.anvil.write.scraplet.cell(workspace !dragon.anvil.workspace, cell !dragon.cell #dragon.anvil.cell)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.scraplet.cell(workspace !df.anvil.workspace, cell !df.cell #df.anvil.cell)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.byte_size.cell()(byte_size)
+    df.anvil.define.byte_size.cell()(byte_size)
 
     [ write instruction ID ]
-    dragon.anvil.workspace.write.cell(workspace, cell, byte_size)(workspace)
+    df.anvil.workspace.write.cell(workspace, cell, byte_size)(workspace)
 }
 
 [
     Instructions
 ]
 [ write stop instruction ]
-dragon.anvil.write.instruction.stop(workspace !dragon.anvil.workspace)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.stop(workspace !df.anvil.workspace)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.stop()(instruction_ID)
+    df.anvil.define.instruction_ID.stop()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
 }
 
 [ write write_cell instruction ]
-dragon.anvil.write.instruction.write_cell(workspace !dragon.anvil.workspace, value !dragon.cell #dragon.anvil.cell, destination_cell_ID !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.write_cell(workspace !df.anvil.workspace, value !df.cell #df.anvil.cell, destination_cell_ID !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.write_cell()(instruction_ID)
+    df.anvil.define.instruction_ID.write_cell()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell(workspace, value)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, destination_cell_ID)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell(workspace, value)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, destination_cell_ID)(workspace)
 }
 
 [ write operate instruction ]
-dragon.anvil.write.instruction.operate(workspace !dragon.anvil.workspace, flag_ID !dragon.cell #dragon.anvil.flag_ID, operation_ID !dragon.cell #dragon.anvil.operation_ID, input_0 !dragon.cell #dragon.anvil.cell_ID, input_1 !dragon.cell #dragon.anvil.cell_ID, input_2 !dragon.cell #dragon.anvil.cell_ID, output_0 !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.operate(workspace !df.anvil.workspace, flag_ID !df.cell #df.anvil.flag_ID, operation_ID !df.cell #df.anvil.operation_ID, input_0 !df.cell #df.anvil.cell_ID, input_1 !df.cell #df.anvil.cell_ID, input_2 !df.cell #df.anvil.cell_ID, output_0 !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.operate()(instruction_ID)
+    df.anvil.define.instruction_ID.operate()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.flag_ID(workspace, flag_ID)(workspace)
-    dragon.anvil.write.scraplet.operation_ID(workspace, operation_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, input_0)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, input_1)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, input_2)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, output_0)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.flag_ID(workspace, flag_ID)(workspace)
+    df.anvil.write.scraplet.operation_ID(workspace, operation_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, input_0)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, input_1)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, input_2)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, output_0)(workspace)
 }
 
 [ write request memory instruction ]
-dragon.anvil.write.instruction.request_memory(workspace !dragon.anvil.workspace, allocation_size !dragon.cell #dragon.anvil.cell_ID, allocation_start !dragon.cell #dragon.anvil.cell_ID, allocation_end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.request_memory(workspace !df.anvil.workspace, allocation_size !df.cell #df.anvil.cell_ID, allocation_start !df.cell #df.anvil.cell_ID, allocation_end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.request_memory()(instruction_ID)
+    df.anvil.define.instruction_ID.request_memory()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, allocation_size)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, allocation_start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, allocation_end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, allocation_size)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, allocation_start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, allocation_end)(workspace)
 }
 
 [ write return memory instruction ]
-dragon.anvil.write.instruction.return_memory(workspace !dragon.anvil.workspace, allocation_start !dragon.cell #dragon.anvil.cell_ID, allocation_end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.return_memory(workspace !df.anvil.workspace, allocation_start !df.cell #df.anvil.cell_ID, allocation_end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.return_memory()(instruction_ID)
+    df.anvil.define.instruction_ID.return_memory()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, allocation_start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, allocation_end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, allocation_start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, allocation_end)(workspace)
 }
 
 [ write address to cell instruction ]
-dragon.anvil.write.instruction.address_to_cell(workspace !dragon.anvil.workspace, flag_ID !dragon.cell #dragon.anvil.flag_ID, source_address !dragon.cell #dragon.anvil.cell_ID, byte_size !dragon.cell #dragon.anvil.cell_ID, destination_cell !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.address_to_cell(workspace !df.anvil.workspace, flag_ID !df.cell #df.anvil.flag_ID, source_address !df.cell #df.anvil.cell_ID, byte_size !df.cell #df.anvil.cell_ID, destination_cell !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.address_to_cell()(instruction_ID)
+    df.anvil.define.instruction_ID.address_to_cell()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.flag_ID(workspace, flag_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, source_address)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, byte_size)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, destination_cell)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.flag_ID(workspace, flag_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, source_address)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, byte_size)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, destination_cell)(workspace)
 }
 
 [ write cell to address instruction ]
-dragon.anvil.write.instruction.cell_to_address(workspace !dragon.anvil.workspace, flag_ID !dragon.cell #dragon.anvil.flag_ID, source_cell !dragon.cell #dragon.anvil.cell_ID, byte_size !dragon.cell #dragon.anvil.cell_ID, destination_address !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.cell_to_address(workspace !df.anvil.workspace, flag_ID !df.cell #df.anvil.flag_ID, source_cell !df.cell #df.anvil.cell_ID, byte_size !df.cell #df.anvil.cell_ID, destination_address !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.cell_to_address()(instruction_ID)
+    df.anvil.define.instruction_ID.cell_to_address()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.flag_ID(workspace, flag_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, source_cell)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, byte_size)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, destination_address)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.flag_ID(workspace, flag_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, source_cell)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, byte_size)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, destination_address)(workspace)
 }
 
 [ write file to buffer instruction ]
-dragon.anvil.write.instruction.file_to_buffer(workspace !dragon.anvil.workspace, file_path.start !dragon.cell #dragon.anvil.cell_ID, file_path.end !dragon.cell #dragon.anvil.cell_ID, file_data.start !dragon.cell #dragon.anvil.cell_ID, file_data.end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.file_to_buffer(workspace !df.anvil.workspace, file_path.start !df.cell #df.anvil.cell_ID, file_path.end !df.cell #df.anvil.cell_ID, file_data.start !df.cell #df.anvil.cell_ID, file_data.end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.file_to_buffer()(instruction_ID)
+    df.anvil.define.instruction_ID.file_to_buffer()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_path.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_path.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_data.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_data.end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_path.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_path.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_data.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_data.end)(workspace)
 }
 
 [ write buffer to file instruction ]
-dragon.anvil.write.instruction.buffer_to_file(workspace !dragon.anvil.workspace, file_data.start !dragon.cell #dragon.anvil.cell_ID, file_data.end !dragon.cell #dragon.anvil.cell_ID, file_path.start !dragon.cell #dragon.anvil.cell_ID, file_path.end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.buffer_to_file(workspace !df.anvil.workspace, file_data.start !df.cell #df.anvil.cell_ID, file_data.end !df.cell #df.anvil.cell_ID, file_path.start !df.cell #df.anvil.cell_ID, file_path.end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.buffer_to_file()(instruction_ID)
+    df.anvil.define.instruction_ID.buffer_to_file()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_data.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_data.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_path.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_path.end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_data.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_data.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_path.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_path.end)(workspace)
 }
 
 [ write delete file instruction ]
-dragon.anvil.write.instruction.delete_file(workspace !dragon.anvil.workspace, file_path.start !dragon.cell #dragon.anvil.cell_ID, file_path.end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.delete_file(workspace !df.anvil.workspace, file_path.start !df.cell #df.anvil.cell_ID, file_path.end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.delete_file()(instruction_ID)
+    df.anvil.define.instruction_ID.delete_file()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_path.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, file_path.end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_path.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, file_path.end)(workspace)
 }
 
 [ write buffer to buffer low to high instruction ]
-dragon.anvil.write.instruction.buffer_to_buffer.low_to_high(workspace !dragon.anvil.workspace, source.start !dragon.cell #dragon.anvil.cell_ID, source.end !dragon.cell #dragon.anvil.cell_ID, destination.start !dragon.cell #dragon.anvil.cell_ID, destination.end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.buffer_to_buffer.low_to_high(workspace !df.anvil.workspace, source.start !df.cell #df.anvil.cell_ID, source.end !df.cell #df.anvil.cell_ID, destination.start !df.cell #df.anvil.cell_ID, destination.end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.buffer_to_buffer.low_to_high()(instruction_ID)
+    df.anvil.define.instruction_ID.buffer_to_buffer.low_to_high()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, source.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, source.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, destination.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, destination.end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, source.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, source.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, destination.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, destination.end)(workspace)
 }
 
 [ write buffer to buffer high to low instruction ]
-dragon.anvil.write.instruction.buffer_to_buffer.high_to_low(workspace !dragon.anvil.workspace, source.start !dragon.cell #dragon.anvil.cell_ID, source.end !dragon.cell #dragon.anvil.cell_ID, destination.start !dragon.cell #dragon.anvil.cell_ID, destination.end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.buffer_to_buffer.high_to_low(workspace !df.anvil.workspace, source.start !df.cell #df.anvil.cell_ID, source.end !df.cell #df.anvil.cell_ID, destination.start !df.cell #df.anvil.cell_ID, destination.end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.buffer_to_buffer.high_to_low()(instruction_ID)
+    df.anvil.define.instruction_ID.buffer_to_buffer.high_to_low()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, source.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, source.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, destination.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, destination.end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, source.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, source.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, destination.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, destination.end)(workspace)
 }
 
 [ write compile instruction ]
-dragon.anvil.write.instruction.compile(
-    workspace !dragon.anvil.workspace #dragon.anvil.cell_ID,
-    user_codes_buffers_buffer.start !dragon.cell #dragon.anvil.cell_ID,
-    user_codes_buffers_buffer.end !dragon.cell #dragon.anvil.cell_ID,
-    include_standard !dragon.cell #dragon.anvil.cell_ID,
-    debug_enabled !dragon.cell #dragon.anvil.cell_ID,
-    generate_kickstarter !dragon.cell #dragon.anvil.cell_ID,
-    output_program.start !dragon.cell #dragon.anvil.cell_ID,
-    output_program.end !dragon.cell #dragon.anvil.cell_ID,
-    output_debug.start !dragon.cell #dragon.anvil.cell_ID,
-    output_debug.end !dragon.cell #dragon.anvil.cell_ID,
-    error.error_occured !dragon.cell #dragon.anvil.cell_ID,
-    error.message.start !dragon.cell #dragon.anvil.cell_ID,
-    error.message.end !dragon.cell #dragon.anvil.cell_ID,
-    error.character_location.file_index !dragon.cell #dragon.anvil.cell_ID,
-    error.character_location.line_number !dragon.cell #dragon.anvil.cell_ID,
-    error.character_location.character_index !dragon.cell #dragon.anvil.cell_ID
+df.anvil.write.instruction.compile(
+    workspace !df.anvil.workspace #df.anvil.cell_ID,
+    user_codes_buffers_buffer.start !df.cell #df.anvil.cell_ID,
+    user_codes_buffers_buffer.end !df.cell #df.anvil.cell_ID,
+    include_standard !df.cell #df.anvil.cell_ID,
+    debug_enabled !df.cell #df.anvil.cell_ID,
+    generate_kickstarter !df.cell #df.anvil.cell_ID,
+    output_program.start !df.cell #df.anvil.cell_ID,
+    output_program.end !df.cell #df.anvil.cell_ID,
+    output_debug.start !df.cell #df.anvil.cell_ID,
+    output_debug.end !df.cell #df.anvil.cell_ID,
+    error.error_occured !df.cell #df.anvil.cell_ID,
+    error.message.start !df.cell #df.anvil.cell_ID,
+    error.message.end !df.cell #df.anvil.cell_ID,
+    error.character_location.file_index !df.cell #df.anvil.cell_ID,
+    error.character_location.line_number !df.cell #df.anvil.cell_ID,
+    error.character_location.character_index !df.cell #df.anvil.cell_ID
 )
 (
-    workspace !dragon.anvil.workspace
+    workspace !df.anvil.workspace
 ) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.compile()(instruction_ID)
+    df.anvil.define.instruction_ID.compile()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, user_codes_buffers_buffer.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, user_codes_buffers_buffer.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, include_standard)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, debug_enabled)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, generate_kickstarter)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, output_program.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, output_program.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, output_debug.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, output_debug.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, error.error_occured)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, error.message.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, error.message.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, error.character_location.file_index)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, error.character_location.line_number)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, error.character_location.character_index)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, user_codes_buffers_buffer.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, user_codes_buffers_buffer.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, include_standard)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, debug_enabled)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, generate_kickstarter)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, output_program.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, output_program.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, output_debug.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, output_debug.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, error.error_occured)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, error.message.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, error.message.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, error.character_location.file_index)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, error.character_location.line_number)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, error.character_location.character_index)(workspace)
 }
 
 [ write run instruction ]
-dragon.anvil.write.instruction.run(workspace !dragon.anvil.workspace, context_buffer.start !dragon.cell #dragon.anvil.cell_ID, context_buffer.end !dragon.cell #dragon.anvil.cell_ID, instruction_count !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.run(workspace !df.anvil.workspace, context_buffer.start !df.cell #df.anvil.cell_ID, context_buffer.end !df.cell #df.anvil.cell_ID, instruction_count !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.run()(instruction_ID)
+    df.anvil.define.instruction_ID.run()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, context_buffer.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, context_buffer.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, instruction_count)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, context_buffer.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, context_buffer.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, instruction_count)(workspace)
 }
 
 [ write get time instruction ]
-dragon.anvil.write.instruction.get_time(workspace !dragon.anvil.workspace, seconds !dragon.cell #dragon.anvil.cell_ID, nanoseconds !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.get_time(workspace !df.anvil.workspace, seconds !df.cell #df.anvil.cell_ID, nanoseconds !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.get_time()(instruction_ID)
+    df.anvil.define.instruction_ID.get_time()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, seconds)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, nanoseconds)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, seconds)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, nanoseconds)(workspace)
 }
 
 [ write debug putchar instruction ]
-dragon.anvil.write.instruction.debug.putchar(workspace !dragon.anvil.workspace, character_cell_ID !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.debug.putchar(workspace !df.anvil.workspace, character_cell_ID !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.debug.putchar()(instruction_ID)
+    df.anvil.define.instruction_ID.debug.putchar()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, character_cell_ID)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, character_cell_ID)(workspace)
 }
 
 [ write debug fgets instruction ]
-dragon.anvil.write.instruction.debug.fgets(workspace !dragon.anvil.workspace, input.start !dragon.cell #dragon.anvil.cell_ID, input.end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.debug.fgets(workspace !df.anvil.workspace, input.start !df.cell #df.anvil.cell_ID, input.end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.debug.fgets()(instruction_ID)
+    df.anvil.define.instruction_ID.debug.fgets()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, input.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, input.end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, input.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, input.end)(workspace)
 }
 
 [ write debug mark data section instruction ]
-dragon.anvil.write.instruction.debug.mark_data_section(workspace !dragon.anvil.workspace, section_length !dragon.cell #dragon.anvil.cell)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.debug.mark_data_section(workspace !df.anvil.workspace, section_length !df.cell #df.anvil.cell)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.debug.mark_data_section()(instruction_ID)
+    df.anvil.define.instruction_ID.debug.mark_data_section()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell(workspace, section_length)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell(workspace, section_length)(workspace)
 }
 
 [ write debug mark code section instruction ]
-dragon.anvil.write.instruction.debug.mark_code_section(workspace !dragon.anvil.workspace, section_length !dragon.cell #dragon.anvil.cell)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.debug.mark_code_section(workspace !df.anvil.workspace, section_length !df.cell #df.anvil.cell)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.debug.mark_code_section()(instruction_ID)
+    df.anvil.define.instruction_ID.debug.mark_code_section()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, section_length)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, section_length)(workspace)
 }
 
 [ write debug get current context instruction ]
-dragon.anvil.write.instruction.debug.get_current_context(workspace !dragon.anvil.workspace, context.start !dragon.cell #dragon.anvil.cell_ID, context.end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.debug.get_current_context(workspace !df.anvil.workspace, context.start !df.cell #df.anvil.cell_ID, context.end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.debug.get_current_context()(instruction_ID)
+    df.anvil.define.instruction_ID.debug.get_current_context()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, context.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, context.end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, context.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, context.end)(workspace)
 }
 
 [ write debug search for allocation instruction ]
-dragon.anvil.write.instruction.debug.search_for_allocation(workspace !dragon.anvil.workspace, buffer_inside_allocation.start !dragon.cell #dragon.anvil.cell_ID, buffer_inside_allocation.end !dragon.cell #dragon.anvil.cell_ID, was_found !dragon.cell #dragon.anvil.cell_ID, found_buffer.start !dragon.cell #dragon.anvil.cell_ID, found_buffer.end !dragon.cell #dragon.anvil.cell_ID)(workspace !dragon.anvil.workspace) = {
+df.anvil.write.instruction.debug.search_for_allocation(workspace !df.anvil.workspace, buffer_inside_allocation.start !df.cell #df.anvil.cell_ID, buffer_inside_allocation.end !df.cell #df.anvil.cell_ID, was_found !df.cell #df.anvil.cell_ID, found_buffer.start !df.cell #df.anvil.cell_ID, found_buffer.end !df.cell #df.anvil.cell_ID)(workspace !df.anvil.workspace) = {
     [ setup variables ]
-    dragon.anvil.define.instruction_ID.debug.search_for_allocation()(instruction_ID)
+    df.anvil.define.instruction_ID.debug.search_for_allocation()(instruction_ID)
 
     [ write scraplets ]
-    dragon.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, buffer_inside_allocation.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, buffer_inside_allocation.end)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, was_found)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, found_buffer.start)(workspace)
-    dragon.anvil.write.scraplet.cell_ID(workspace, found_buffer.end)(workspace)
+    df.anvil.write.scraplet.instruction_ID(workspace, instruction_ID)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, buffer_inside_allocation.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, buffer_inside_allocation.end)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, was_found)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, found_buffer.start)(workspace)
+    df.anvil.write.scraplet.cell_ID(workspace, found_buffer.end)(workspace)
 }

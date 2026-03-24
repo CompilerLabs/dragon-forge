@@ -1,69 +1,69 @@
 [ open context ]
-dragon.context.open()(context !dragon.buffer) = {
+df.context.open()(context !df.buffer) = {
     [ allocate ]
-    dragon.buffer.request(dragon.context.byte_size)(context)
+    df.buffer.request(df.context.byte_size)(context)
 }
 
 [ calculate cell offset ]
-dragon.context.calculate.context_cell_offset(cell_ID !dragon.cell)(offset !dragon.cell) = {
+df.context.calculate.context_cell_offset(cell_ID !df.cell)(offset !df.cell) = {
     [ calculate offset ]
-    dragon.integer.multiply(cell_ID, dragon.cell.byte_size)(offset)
+    df.integer.multiply(cell_ID, df.cell.byte_size)(offset)
 }
 
 [ calculate cell address within context ]
-dragon.context.calculate.context_cell_address(context !dragon.buffer, cell_ID !dragon.cell)(address !dragon.cell) = {
+df.context.calculate.context_cell_address(context !df.buffer, cell_ID !df.cell)(address !df.cell) = {
     [ calculate cell address ]
-    dragon.context.calculate.context_cell_offset(cell_ID)(offset)
-    dragon.integer.add(context:start, offset)(address)
+    df.context.calculate.context_cell_offset(cell_ID)(offset)
+    df.integer.add(context:start, offset)(address)
 }
 
 [ write context cell ]
-dragon.context.write.cell(context !dragon.buffer, cell_ID !dragon.cell, value !dragon.cell)() = {
+df.context.write.cell(context !df.buffer, cell_ID !df.cell, value !df.cell)() = {
     [ calculate address ]
-    dragon.context.calculate.context_cell_address(context, cell_ID)(address)
+    df.context.calculate.context_cell_address(context, cell_ID)(address)
 
     [ perform write ]
-    dragon.cell_to_address(value, dragon.cell.byte_size, address)(advancement)
+    df.cell_to_address(value, df.cell.byte_size, address)(advancement)
 }
 
 [ read context cell ]
-dragon.context.read.cell(context !dragon.buffer, cell_ID !dragon.cell)(value !dragon.cell) = {
+df.context.read.cell(context !df.buffer, cell_ID !df.cell)(value !df.cell) = {
     [ calculate address ]
-    dragon.context.calculate.context_cell_address(context, cell_ID)(address)
+    df.context.calculate.context_cell_address(context, cell_ID)(address)
 
     [ perform write ]
-    dragon.address_to_cell(address, dragon.cell.byte_size)(value, advancement)
+    df.address_to_cell(address, df.cell.byte_size)(value, advancement)
 }
 
 [ write context input ]
-dragon.context.set.context_input(context !dragon.buffer, input !dragon.buffer)() = {
+df.context.set.context_input(context !df.buffer, input !df.buffer)() = {
     [ setup variable IDs ]
-    dragon.set(dragon.integer.24)(context.input.start)
-    dragon.set(dragon.integer.25)(context.input.end)
+    df.set(df.integer.24)(context.input.start)
+    df.set(df.integer.25)(context.input.end)
 
     [ write to context ]
-    dragon.context.write.cell(context, context.input.start, input:start)()
-    dragon.context.write.cell(context, context.input.end, input:end)()
+    df.context.write.cell(context, context.input.start, input:start)()
+    df.context.write.cell(context, context.input.end, input:end)()
 }
 
 [ read context result ]
-dragon.context.get.context_result(context !dragon.buffer)(result !dragon.buffer) = {
+df.context.get.context_result(context !df.buffer)(result !df.buffer) = {
     [ setup variable IDs ]
-    dragon.set(dragon.integer.26)(context.result.start)
-    dragon.set(dragon.integer.27)(context.result.end)
+    df.set(df.integer.26)(context.result.start)
+    df.set(df.integer.27)(context.result.end)
 
     [ read into variables ]
-    dragon.context.read.cell(context, context.result.start)(result:start)
-    dragon.context.read.cell(context, context.result.end)(result:end)
+    df.context.read.cell(context, context.result.start)(result:start)
+    df.context.read.cell(context, context.result.end)(result:end)
 }
 
 [ read context result ]
-dragon.context.get.context_error(context !dragon.buffer)(error !dragon.buffer) = {
+df.context.get.context_error(context !df.buffer)(error !df.buffer) = {
     [ setup variable IDs ]
-    dragon.set(dragon.integer.28)(context.error.start)
-    dragon.set(dragon.integer.29)(context.error.end)
+    df.set(df.integer.28)(context.error.start)
+    df.set(df.integer.29)(context.error.end)
 
     [ read into variables ]
-    dragon.context.read.cell(context, context.error.start)(error:start)
-    dragon.context.read.cell(context, context.error.end)(error:end)
+    df.context.read.cell(context, context.error.start)(error:start)
+    df.context.read.cell(context, context.error.end)(error:end)
 }
