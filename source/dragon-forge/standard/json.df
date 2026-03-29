@@ -1231,7 +1231,7 @@ df.json.compile.print.parsling(workspace !df.json.workspace, parsling !df.json.p
     Traversing
 ]
 [ traverse based on name ]
-df.json.traverse.retrieve_parsling.by_name(source_parsling !df.json.parsling, name !df.buffer)(found_parsling !df.json.parsling, was_found !df.cell, was_not_found !df.cell) = {
+df.json.traverse.retrieve_parsling.by_name(source_parsling !df.json.parsling, name !df.buffer)(found_parsling !df.json.parsling, found !df.cell, not_found !df.cell) = {
     [ null init output ]
     df.pack.null()(found_parsling !df.json.parsling)
 
@@ -1246,6 +1246,7 @@ df.json.traverse.retrieve_parsling.by_name(source_parsling !df.json.parsling, na
 
     [ setup search condition ]
     df.copy(df.true)(not_found)
+    df.copy(df.false)(found)
 
     [ search for member with name ]
     @search not_found = {
@@ -1272,6 +1273,7 @@ df.json.traverse.retrieve_parsling.by_name(source_parsling !df.json.parsling, na
         @match found_name = {
             [ disable not found ]
             df.copy(df.false)(not_found)
+            df.copy(df.true)(found)
 
             [ setup output ]
             df.copy(parsling)(found_parsling)
