@@ -18,3 +18,9 @@ df.buffer.calculate.end_address(start !df.cell, length !df.cell)(end !df.cell) =
     df.integer.add(start, length)(end)
     df.integer.subtract(end, df.constant.1)(end)
 }
+
+[ trim quotes off of string buffer ]
+df.buffer.trim_quotes(string !df.buffer)(string !df.buffer) = {
+    df.integer.add(string:start, df.constant.1)(string:start)
+    df.integer.subtract(string:end, df.constant.1)(string:end)
+}
