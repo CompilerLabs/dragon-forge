@@ -37,8 +37,8 @@ Compile and execute command:
 DragonForge is written in C for Linux.
 
 It requires:
-    - gcc (or equivalent C compiler)
-    - xxd (for some internal code generation)
+- gcc (or equivalent C compiler)
+- xxd (for some internal code generation)
 
 The executable files are always made one folder level above the repository folder.
 It is recommended to make a 'dragon-forge-project' folder and clone / pull this repository inside of it.
