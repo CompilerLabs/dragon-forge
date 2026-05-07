@@ -9,8 +9,7 @@
 ]
 
 [ create a workspace ]
-!df.anvil.workspace
-(
+!df.anvil.workspace = (
     do_write !df.cell,
     write_to !df.cell,
     length !df.cell,

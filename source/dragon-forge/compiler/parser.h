@@ -2,6 +2,7 @@
 #define DRAGON__compiler__parser
 
 /* Include */
+#include "compiler_specifications.h"
 #include "lexer.h"
 
 /* Parser */
@@ -970,6 +971,22 @@ COMPILER__parsling_structure COMPILER__parse__structure(ANVIL__current* current,
         if (COMPILER__check__error_occured(error)) {
             return output;
         }
+    }
+
+    // check for equals sign
+    if (ANVIL__check__current_within_range(*current) && COMPILER__read__lexling_from_current(*current).type == COMPILER__lt__equals) {
+        // no saving data necessary, next lexling
+        COMPILER__advance__lexling_current(current, 1);
+    // error
+    } else {
+        // set error
+        *error = COMPILER__open__error("Parse Error: A structure definition has an equals sign missing.", COMPILER__read__lexling_from_current(*current).location);
+
+        // setup blank output list
+        output.arguments = COMPILER__open__counted_list_with_error(1, error);
+
+        // quit
+        return output;
     }
 
     // parse arguments

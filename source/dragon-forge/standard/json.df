@@ -2,15 +2,13 @@
     Compile
 ]
 [ master type ]
-!df.json
-(
+!df.json = (
     [ translated data ]
     nodes !df.cell [ type TODO ]
 )
 
 [ translation data ]
-!df.json.workspace
-(
+!df.json.workspace = (
     [ defines ]
     lexling.types !df.json.lexling.types,
     parsling.types !df.json.parsling.types,
@@ -86,8 +84,7 @@ df.json.compile.close.workspace(workspace !df.json.workspace)() = {
     Lexing
 ]
 [ lexlings type ]
-!df.json.lexlings
-(
+!df.json.lexlings = (
     list !df.list [ !df.json.lexling ]
 )
 
@@ -117,8 +114,7 @@ df.json.lexlings.print(lexlings !df.json.lexlings)() = {
 }
 
 [ lexling type ]
-!df.json.lexling
-(
+!df.json.lexling = (
     raw !df.buffer,
     type !df.cell,
     location !df.text.location
@@ -155,8 +151,7 @@ df.json.append.location(list !df.list, location !df.text.location)(list !df.list
 }
 
 [ lexling type structure ]
-!df.json.lexling.types
-(
+!df.json.lexling.types = (
     invalid !df.cell,
     left_square_bracket !df.cell,
     right_square_bracket !df.cell,
@@ -548,14 +543,12 @@ df.json.compile.lex.print(workspace !df.json.workspace)() = {
     Parsing
 ]
 [ parslings ]
-!df.json.parslings
-(
+!df.json.parslings = (
     root !df.json.parsling
 )
 
 [ parsling ]
-!df.json.parsling
-(
+!df.json.parsling = (
     type !df.cell,
     name !df.json.lexling,
     value.datum !df.json.lexling,
@@ -618,8 +611,7 @@ df.json.close.parsling(workspace !df.json.workspace, master_parsling !df.json.pa
 }
 
 [ parsling types ]
-!df.json.parsling.types
-(
+!df.json.parsling.types = (
     invalid !df.cell,
     object !df.cell,
     array !df.cell,

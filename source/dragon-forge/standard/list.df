@@ -1,5 +1,5 @@
 [ list definition ]
-!df.list(
+!df.list = (
     allocation !df.buffer,
     length !df.cell, [ length of content ]
     increase !df.cell [ when more space is needed, allocate in increments of 'increase' ]
